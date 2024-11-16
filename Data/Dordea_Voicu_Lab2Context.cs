@@ -17,8 +17,11 @@ namespace Dordea_Voicu_Lab2.Data
         {
             // connect to postgres with connection string from app settings
             options.UseNpgsql(Configuration.GetConnectionString("Dordea_Voicu_Lab2Context"));
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
         public DbSet<Dordea_Voicu_Lab2.Models.Book> Book { get; set; }
+        public DbSet<Dordea_Voicu_Lab2.Models.Publisher> Publisher { get; set; } = default!;
+        public DbSet<Dordea_Voicu_Lab2.Models.Author> Author { get; set; } = default!;
     }
 }
