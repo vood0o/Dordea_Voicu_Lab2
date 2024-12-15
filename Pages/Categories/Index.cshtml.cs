@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Dordea_Voicu_Lab2.Data;
 using Dordea_Voicu_Lab2.Models;
+using Dordea_Voicu_Lab2.Models.ViewModels;
 
 namespace Dordea_Voicu_Lab2.Pages.Categories
 {
@@ -19,11 +20,34 @@ namespace Dordea_Voicu_Lab2.Pages.Categories
             _context = context;
         }
 
-        public IList<Category> Category { get;set; } = default!;
+        public IList<Category> Category { get; set; } = default!;
 
-        public async Task OnGetAsync()
+        public CategoryIndexData CategoryData { get; set; }
+        public int CategoryID { get; set; }
+        public int BookID { get; set; }
+        public async Task OnGetAsync(int? id, int? bookID)
         {
-            Category = await _context.Category.ToListAsync();
+            CategoryData = new CategoryIndexData();
+            CategoryData.Categories = await _context.Category
+            .Include(i => i.BookCategories)
+            .ThenInclude(i => i.Book)
+            .ThenInclude(c => c.Author)
+            //.OrderBy(i => i.PublisherName)
+            .ToListAsync();
+            if (id != null)
+            {
+                CategoryID = id.Value;
+                Category category = CategoryData.Categories
+                .Where(i => i.ID == id.Value).Single();
+                CategoryData.Books = category.BookCategories
+                    .Select(bc => bc.Book) // Extract Book from each BookCategory
+                    .ToList();
+            }
+
+            //public async Task OnGetAsync()
+            //{
+            //    Category = await _context.Category.ToListAsync();
+            //}
         }
     }
 }
